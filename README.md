@@ -12,7 +12,9 @@
 
 ## Исходники
 
-Код находится в `source/`, оригиналы изображений — в `media/`. Сохранены React, Tailwind CSS, shadcn/ui и Motion. Версия для GitHub Pages собирается Vite и не требует сервера или API-ключей.
+Код находится в `source/`, оригиналы изображений — в `media/`. Стек: React, Tailwind CSS, Radix UI и Motion. Версия для GitHub Pages собирается Vite и не требует сервера или API-ключей.
+
+Каждый раздел страницы лежит в своём файле в `source/components/`, общие анимации — в `source/components/motion.tsx`. Колода фотографий (`ui/card-deck.tsx`) и таймлайн шагов (`journey.tsx`) сделаны на основе компонентов с [21st.dev](https://21st.dev). Шрифты Literata и Onest подключаются локально из пакетов `@fontsource-variable`, в сборку попадают только кириллица и латиница.
 
 Node.js 22.13+ и pnpm 11.25.0:
 

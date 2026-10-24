@@ -12,22 +12,6 @@ const routes=[
  {id:'ship',tab:'Теплоход по Амуру',short:'Теплоход',icon:Ship,title:'Теплоходом через Амур',season:'Пока идёт навигация',description:'Летом реку можно просто переплыть. Рейсы зависят от погоды и уровня воды, поэтому расписание лучше смотреть ближе к дате.',steps:['Проверьте, открыта ли навигация.','Кассы: Благовещенск, ул. Чайковского, 1.','Пройдите границу.','После таможни вас встречают.'],link:'https://amurasso-port.ru/',label:'Сайт пассажирского порта',middle:'Речной порт',note:'В сильный ветер и в ледоход рейсы могут отменить.'},
 ];
 
-// Амур между двумя берегами: волна прорисовывается, когда до неё долистали.
-function River(){
- const reduce=useReducedMotion();
- const wave=Array.from({length:12},(_,i)=>`q ${25} ${i%2?16:-16} 50 0`).join(' ');
- return <div className="mt-14 flex items-center gap-4 md:gap-8" aria-hidden="true">
-  <div className="shrink-0"><p className="font-serif text-[clamp(18px,2.2vw,30px)] leading-none">Благовещенск</p><p className="mt-2 text-[13px] text-soft">Россия</p></div>
-  <div className="relative flex-1">
-   <motion.p className="absolute -top-8 left-1/2 -translate-x-1/2 text-[12px] whitespace-nowrap text-soft md:-top-10 md:text-[13px]" initial={{opacity:0}} whileInView={{opacity:1}} viewport={{once:true}} transition={{delay:1}}>Амур · меньше километра</motion.p>
-   <svg viewBox="0 0 600 40" preserveAspectRatio="none" className="h-8 w-full overflow-visible md:h-10">
-    <motion.path d={`M0 20 ${wave}`} fill="none" stroke="var(--color-teal)" strokeWidth="2.5" strokeLinecap="round" vectorEffect="non-scaling-stroke" initial={{pathLength:reduce?1:0}} whileInView={{pathLength:1}} viewport={{once:true,amount:.8}} transition={{duration:1.8,ease}}/>
-   </svg>
-  </div>
-  <div className="shrink-0 text-right"><p className="font-serif text-[clamp(18px,2.2vw,30px)] leading-none">Хэйхэ</p><p className="mt-2 text-[13px] text-soft">Китай</p></div>
- </div>;
-}
-
 export function RouteSection(){
  const [tab,setTab]=useState('bus');
  const reduce=useReducedMotion();
@@ -39,8 +23,7 @@ export function RouteSection(){
    </div>
    <Reveal className="lg:col-span-4 lg:col-start-9 lg:pt-14" delay={.1}><p className="lead">Между городами меньше километра по реке. Круглый год ходит автобус по мосту, летом ещё и теплоход. Как удобнее в ваши даты, подскажем по телефону.</p></Reveal>
   </div>
-  <River/>
-  <Reveal className="mt-14">
+  <Reveal className="mt-12 md:mt-16">
    <Tabs.Root value={tab} onValueChange={setTab}>
     <Tabs.List aria-label="Как добраться до Хэйхэ" className="inline-flex w-full rounded-full border border-line bg-sand/70 p-1.5 sm:w-auto">
      {routes.map(r=><Tabs.Trigger key={r.id} value={r.id} aria-label={r.tab} className="relative flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-[15px] font-medium text-soft transition-colors data-[state=active]:text-paper sm:flex-none sm:px-6">

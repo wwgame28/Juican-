@@ -6,7 +6,7 @@
 
 В **Settings → Pages** выберите **Deploy from a branch**, ветку **main**, папку **/ (root)**, затем **Save**.
 
-После завершения публикации адрес: https://wwgame28.github.io/Juican-/
+Сайт открывается по адресу https://ruikangdentist.ru. Домен записан в `media/CNAME`, при сборке файл попадает в корень, поэтому настройка не теряется. У регистратора для домена стоят четыре A-записи GitHub Pages (`185.199.108.153`–`185.199.111.153`) и CNAME `www → wwgame28.github.io`.
 
 Корневой `index.html`, `assets/` и изображения уже готовы. Сборка на GitHub не нужна.
 

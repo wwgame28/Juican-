@@ -1,27 +1,63 @@
 'use client';
-import {useState,useEffect,useRef} from 'react';
+import {useCallback,useRef,useState} from 'react';
 import {ArrowLeft,ArrowRight,Expand} from 'lucide-react';
-import {motion,useReducedMotion} from 'motion/react';
-import {Button} from '@/components/ui/button';
+import {Reveal,Words} from '@/components/motion';
+import {CardDeck,type CardDeckHandle} from '@/components/ui/card-deck';
 import {Dialog,DialogContent,DialogTitle,DialogDescription} from '@/components/ui/dialog';
 
-// Подписи описывают только видимое на фотографиях, без выдуманных имён и дат.
+// Подписи описывают только то, что видно на фотографиях.
 const photos=[
- {src:'./trip-group.jpeg',title:'Вместе в Хэйхэ',text:'Групповая фотография участников поездки «Жуйкан».',alt:'Участники поездки Жуйкан вместе в помещении'},
- {src:'./trip-temple.jpeg',title:'Знакомство с городом',text:'Поездка запоминается не только визитом в клинику.',alt:'Участники поездки у традиционного китайского храма'},
- {src:'./trip-dinner.webp',title:'За общим столом',text:'Новые знакомства и общение в кругу попутчиков.',alt:'Участники поездки за большим круглым столом'},
- {src:'./trip-friends.webp',title:'Тёплые моменты поездки',text:'Фотографии, которыми хочется поделиться.',alt:'Группа участников поездки за столом с баннером Жуйкан'}
+ {src:'./trip-group.jpeg',title:'Вся группа в сборе',text:'Ужин в Хэйхэ. Баннер, как обычно, с нами.',alt:'Участники поездки «Жуйкан» вместе в ресторане с баннером «Тур улыбки в Хэйхэ»'},
+ {src:'./trip-temple.jpeg',title:'Выбрались к храму',text:'Между приёмами есть время посмотреть город.',alt:'Группа с баннером у традиционного китайского храма с красными стенами'},
+ {src:'./trip-dinner.webp',title:'Круглый стол',text:'Центр стола крутится, так что до любого блюда можно дотянуться.',alt:'Участники поездки за большим круглым столом с китайскими блюдами'},
+ {src:'./trip-friends.webp',title:'Ещё один вечер',text:'Китайская кухня, разговоры и фото на память.',alt:'Группа участников поездки за столом в ресторане, сзади растянут баннер «Жуйкан»'},
 ];
+
 export function TripGallery(){
- const [active,setActive]=useState(0),[open,setOpen]=useState(false);const titleRef=useRef<HTMLHeadingElement|null>(null);const opener=useRef<HTMLButtonElement|null>(null);const swiped=useRef(false);const touch=useRef<{x:number;y:number}|null>(null);const reduce=useReducedMotion();
- const move=(delta:number)=>setActive(i=>(i+delta+photos.length)%photos.length);
- useEffect(()=>{if(!open)return;const handle=(e:KeyboardEvent)=>{if(e.key==='ArrowLeft'){e.preventDefault();setActive(i=>(i+photos.length-1)%photos.length)}if(e.key==='ArrowRight'){e.preventDefault();setActive(i=>(i+1)%photos.length)}};window.addEventListener('keydown',handle);return()=>window.removeEventListener('keydown',handle)},[open]);
- const swipe={
-  onTouchStart:(e:React.TouchEvent)=>{swiped.current=false;if(e.touches.length!==1){touch.current=null;return}touch.current={x:e.touches[0].clientX,y:e.touches[0].clientY}},
-  onTouchMove:(e:React.TouchEvent)=>{if(e.touches.length!==1)touch.current=null},
-  onTouchCancel:()=>{touch.current=null;swiped.current=false},
-  onTouchEnd:(e:React.TouchEvent)=>{if(!touch.current||e.touches.length!==0){touch.current=null;return}const dx=e.changedTouches[0].clientX-touch.current.x,dy=e.changedTouches[0].clientY-touch.current.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5){swiped.current=true;move(dx>0?-1:1)}touch.current=null}
- };
- const photo=photos[active];
- return <section id="moments" className="wrap moments"><div className="gallery-heading"><p className="section-label">ЛЮДИ И МОМЕНТЫ</p><h2>В другой стране.<br/><span>В хорошей компании.</span></h2><p className="intro">Встречи, общение и знакомство с Хэйхэ. Настоящие фотографии наших поездок.</p></div><div className="gallery-layout"><div className="gallery-main"><motion.button type="button" key={active} initial={{opacity:reduce?1:.6}} animate={{opacity:1}} transition={{duration:.3}} ref={opener} className="gallery-image" onClick={()=>{if(swiped.current){swiped.current=false;return}setOpen(true)}} aria-label={'Увеличить фото: '+photo.title} {...swipe}><img src={photo.src} alt={photo.alt} width="1280" height="960" loading="lazy"/><span className="expand-icon"><Expand size={20}/></span></motion.button><div className="gallery-caption"><div aria-live="polite" aria-atomic="true"><h3>{photo.title}</h3><p>{photo.text}</p></div><div className="gallery-controls"><Button variant="outline" size="icon" aria-label="Предыдущее фото" onClick={()=>move(-1)}><ArrowLeft/></Button><span aria-label={'Фото '+(active+1)+' из 4'}>{String(active+1).padStart(2,'0')} / 04</span><Button variant="outline" size="icon" aria-label="Следующее фото" onClick={()=>move(1)}><ArrowRight/></Button></div></div></div><div className="gallery-thumbs" aria-label="Выбор фотографии">{photos.map((p,i)=><button type="button" key={p.src} className={i===active?'thumb active':'thumb'} onClick={()=>setActive(i)} aria-label={'Показать фото '+(i+1)+': '+p.title} aria-pressed={i===active}><img src={p.src} alt="" width="1280" height="960" loading="lazy"/><span><small>0{i+1}</small>{p.title}</span></button>)}</div></div><div className="gallery-footnote"><span>Фотографии участников поездок</span><a href="#contact">Узнать о сопровождении <ArrowRight size={17}/></a></div><Dialog open={open} onOpenChange={setOpen}><DialogContent onOpenAutoFocus={e=>{e.preventDefault();titleRef.current?.focus({preventScroll:true})}} className="gallery-dialog" onCloseAutoFocus={e=>{e.preventDefault();opener.current?.focus()}}><DialogTitle ref={titleRef} tabIndex={-1}>{photo.title}</DialogTitle><DialogDescription>Фотография {active+1} из {photos.length}. Можно листать стрелками или свайпом.</DialogDescription><div className="gallery-full" {...swipe}><img src={photo.src} alt={photo.alt}/></div><div className="gallery-controls"><Button variant="outline" aria-label="Предыдущее фото в галерее" onClick={()=>move(-1)}><ArrowLeft/> Назад</Button><span aria-live="polite">{active+1} / {photos.length}</span><Button variant="outline" aria-label="Следующее фото в галерее" onClick={()=>move(1)}>Далее <ArrowRight/></Button></div></DialogContent></Dialog></section>
+ const [top,setTop]=useState(0),[open,setOpen]=useState(false);
+ const deck=useRef<CardDeckHandle|null>(null);
+ const opener=useRef<HTMLButtonElement|null>(null);
+ const onTopChange=useCallback((i:number)=>setTop(i),[]);
+ const photo=photos[top];
+ const move=(delta:number)=>setTop(i=>(i+delta+photos.length)%photos.length);
+
+ return <section id="trips" className="on-dark overflow-hidden bg-ink py-24 text-paper md:py-32">
+  <div className="wrap grid grid-cols-1 items-center gap-14 lg:grid-cols-12">
+   <div className="lg:col-span-5">
+    <p className="eyebrow">Поездки</p>
+    <h2 className="mt-5 text-[clamp(34px,4.4vw,62px)] leading-[1.06] tracking-[-.025em]"><Words text="Фото не со стока."/>{' '}<Words delay={.2} className="text-[#f2b8a8] italic" text="Это наши группы"/></h2>
+    <Reveal delay={.1}><p className="lead mt-6 max-w-[440px] text-[#c9d3cf]">Днём приёмы, вечером общий стол. К концу поездки все уже знакомы. Баннер, как видите, ездит с нами везде.</p></Reveal>
+    <Reveal delay={.2} className="mt-8 lg:mt-10">
+     <p className="text-[14px] text-[#9fb0aa]">Смахните верхнее фото в сторону или листайте стрелками.</p>
+    </Reveal>
+   </div>
+   <Reveal className="lg:col-span-7" y={50}>
+    <div className="pt-12">
+     <CardDeck ref={deck} slides={photos} top={top} onTopChange={onTopChange} label="Фотографии из поездок"/>
+    </div>
+    <div className="mx-auto mt-8 flex w-full max-w-[620px] items-center gap-4">
+     <button type="button" aria-label="Предыдущее фото" onClick={()=>deck.current?.prev()} className="grid size-12 shrink-0 place-items-center rounded-full border border-paper/25 transition-colors hover:bg-paper hover:text-ink"><ArrowLeft className="size-5"/></button>
+     <div className="cd-caption min-w-0 flex-1 overflow-hidden" key={top} aria-live="polite">
+      <strong className="truncate font-serif text-[22px] font-medium">{photo.title}</strong>
+      <span className="mt-1 text-[14px] text-[#c9d3cf]">{photo.text}</span>
+     </div>
+     <span className="hidden text-[13px] tracking-[.14em] text-[#9fb0aa] tabular-nums sm:block" aria-hidden="true"><b className="font-medium text-paper">0{top+1}</b> / 0{photos.length}</span>
+     <button ref={opener} type="button" aria-label={'Открыть крупно: '+photo.title} onClick={()=>setOpen(true)} className="grid size-12 shrink-0 place-items-center rounded-full border border-paper/25 transition-colors hover:bg-paper hover:text-ink"><Expand className="size-5"/></button>
+     <button type="button" aria-label="Следующее фото" onClick={()=>deck.current?.next()} className="grid size-12 shrink-0 place-items-center rounded-full bg-paper text-ink transition-transform hover:scale-105"><ArrowRight className="size-5"/></button>
+    </div>
+   </Reveal>
+  </div>
+  <Dialog open={open} onOpenChange={setOpen}>
+   <DialogContent className="max-h-[94dvh] max-w-[min(1080px,calc(100vw-24px))] gap-3 overflow-y-auto rounded-[22px] bg-paper p-4 sm:max-w-[min(1080px,calc(100vw-40px))] sm:p-6" onCloseAutoFocus={e=>{e.preventDefault();opener.current?.focus()}}>
+    <DialogTitle className="pr-12 font-serif text-[22px] font-medium">{photo.title}</DialogTitle>
+    <DialogDescription>Фото {top+1} из {photos.length}. {photo.text}</DialogDescription>
+    <img src={photo.src} alt={photo.alt} className="max-h-[70dvh] w-full rounded-xl bg-sand object-contain"/>
+    <div className="flex items-center justify-between gap-3">
+     <button type="button" onClick={()=>move(-1)} className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-3 font-medium hover:bg-sand"><ArrowLeft className="size-4"/>Назад</button>
+     <span className="text-[14px] text-soft tabular-nums">{top+1} / {photos.length}</span>
+     <button type="button" onClick={()=>move(1)} className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 font-medium text-paper hover:bg-teal">Дальше<ArrowRight className="size-4"/></button>
+    </div>
+   </DialogContent>
+  </Dialog>
+ </section>;
 }

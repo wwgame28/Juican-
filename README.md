@@ -6,13 +6,15 @@
 
 В **Settings → Pages** выберите **Deploy from a branch**, ветку **main**, папку **/ (root)**, затем **Save**.
 
-После завершения публикации адрес: https://wwgame28.github.io/Juican-/
+Сайт открывается по адресу https://ruikangdentist.ru. Домен записан в `media/CNAME`, при сборке файл попадает в корень, поэтому настройка не теряется. У регистратора для домена стоят четыре A-записи GitHub Pages (`185.199.108.153`–`185.199.111.153`) и CNAME `www → wwgame28.github.io`.
 
 Корневой `index.html`, `assets/` и изображения уже готовы. Сборка на GitHub не нужна.
 
 ## Исходники
 
-Код находится в `source/`, оригиналы изображений — в `media/`. Сохранены React, Tailwind CSS, shadcn/ui и Motion. Версия для GitHub Pages собирается Vite и не требует сервера или API-ключей.
+Код находится в `source/`, оригиналы изображений — в `media/`. Стек: React, Tailwind CSS, Radix UI и Motion. Версия для GitHub Pages собирается Vite и не требует сервера или API-ключей.
+
+Каждый раздел страницы лежит в своём файле в `source/components/`, общие анимации — в `source/components/motion.tsx`. Колода фотографий (`ui/card-deck.tsx`) и таймлайн шагов (`journey.tsx`) сделаны на основе компонентов с [21st.dev](https://21st.dev). Шрифты Literata и Onest подключаются локально из пакетов `@fontsource-variable`, в сборку попадают только кириллица и латиница.
 
 Node.js 22.13+ и pnpm 11.25.0:
 
